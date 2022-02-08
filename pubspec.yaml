@@ -18,7 +18,7 @@ dependencies:
   flutter_google_places: ^0.3.0
   flutter_polyline_points: ^1.0.0
   geolocator: ^8.0.3
-
+  fluttertoast: ^8.0.8
 
   cupertino_icons: ^1.0.2
 

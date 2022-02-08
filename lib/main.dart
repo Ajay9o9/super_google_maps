@@ -5,10 +5,12 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_super_example/add_marker_to_map.dart';
 
 import 'dart:math' show cos, sqrt, asin;
 
 import 'package:google_maps_super_example/keys.dart';
+import 'package:google_maps_super_example/map_with_markers.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MapView(),
+      home: AddMarkerToMapScreen(),
     );
   }
 }
@@ -328,153 +330,156 @@ class _MapViewState extends State<MapView> {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     log("inside build method");
-    return Container(
-      height: height,
-      width: width,
-      child: Scaffold(
-        key: _scaffoldKey,
-        body: Stack(
-          children: <Widget>[
-            // Map View
-            SafeArea(
-              child: Positioned(
-                width: MediaQuery.of(context).size.width * 0.995,
-                child: Card(
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.72,
-                    child: GoogleMap(
-                      markers: Set<Marker>.from(markers),
-                      initialCameraPosition: _initialLocation,
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: false,
-                      mapType: MapType.normal,
-                      zoomGesturesEnabled: true,
-                      zoomControlsEnabled: false,
-                      polylines: Set<Polyline>.of(polylines.values),
-                      onMapCreated: (GoogleMapController controller) {
-                        mapController = controller;
-                      },
+    return SingleChildScrollView(
+      child: Container(
+        height: height,
+        width: width,
+        child: Scaffold(
+          key: _scaffoldKey,
+          body: Stack(
+            children: <Widget>[
+              // Map View
+              SafeArea(
+                child: Positioned(
+                  width: MediaQuery.of(context).size.width * 0.995,
+                  child: Card(
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.72,
+                      child: GoogleMap(
+                        markers: Set<Marker>.from(markers),
+                        initialCameraPosition: _initialLocation,
+                        myLocationEnabled: true,
+                        myLocationButtonEnabled: false,
+                        mapType: MapType.normal,
+                        zoomGesturesEnabled: true,
+                        zoomControlsEnabled: false,
+                        polylines: Set<Polyline>.of(polylines.values),
+                        onMapCreated: (GoogleMapController controller) {
+                          mapController = controller;
+                        },
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            // Show the place input fields & button for
-            // showing the route
-            SafeArea(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(20.0),
+              // Show the place input fields & button for
+              // showing the route
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(20.0),
+                        ),
                       ),
-                    ),
-                    width: width * 0.99,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          SizedBox(height: 10),
-                          _textField(
-                              label: 'Start',
-                              hint: 'Choose starting point',
-                              suffixIcon: IconButton(
-                                icon: Icon(Icons.my_location),
-                                onPressed: () {
-                                  startAddressController.text = _currentAddress;
-                                  _startAddress = _currentAddress;
-                                },
-                              ),
-                              controller: startAddressController,
-                              focusNode: startAddressFocusNode,
-                              width: width,
-                              locationCallback: (String value) {
-                                setState(() {
-                                  _startAddress = value;
-                                });
-                              }),
-                          SizedBox(height: 10),
-                          _textField(
-                              label: 'Destination',
-                              hint: 'Choose destination',
-                              controller: destinationAddressController,
-                              focusNode: desrinationAddressFocusNode,
-                              width: width,
-                              locationCallback: (String value) {
-                                setState(() {
-                                  _destinationAddress = value;
-                                });
-                              }),
-                          SizedBox(height: 10),
-                          Visibility(
-                            visible: _placeDistance == null ? false : true,
-                            child: Text(
-                              'DISTANCE: $_placeDistance km',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 5),
-                          ElevatedButton(
-                            onPressed: () async {
-                              startAddressFocusNode.unfocus();
-                              desrinationAddressFocusNode.unfocus();
-                              setState(() {
-                                if (markers.isNotEmpty) markers.clear();
-                                if (polylines.isNotEmpty) polylines.clear();
-                                if (polylineCoordinates.isNotEmpty)
-                                  polylineCoordinates.clear();
-                                _placeDistance = null;
-                              });
-
-                              _calculateDistance().then((isCalculated) {
-                                if (isCalculated) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          'Distance Calculated Sucessfully'),
-                                    ),
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content:
-                                          Text('Error Calculating Distance'),
-                                    ),
-                                  );
-                                }
-                              });
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                      width: width * 0.99,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            SizedBox(height: 10),
+                            _textField(
+                                label: 'Start',
+                                hint: 'Choose starting point',
+                                suffixIcon: IconButton(
+                                  icon: Icon(Icons.my_location),
+                                  onPressed: () {
+                                    startAddressController.text =
+                                        _currentAddress;
+                                    _startAddress = _currentAddress;
+                                  },
+                                ),
+                                controller: startAddressController,
+                                focusNode: startAddressFocusNode,
+                                width: width,
+                                locationCallback: (String value) {
+                                  setState(() {
+                                    _startAddress = value;
+                                  });
+                                }),
+                            SizedBox(height: 10),
+                            _textField(
+                                label: 'Destination',
+                                hint: 'Choose destination',
+                                controller: destinationAddressController,
+                                focusNode: desrinationAddressFocusNode,
+                                width: width,
+                                locationCallback: (String value) {
+                                  setState(() {
+                                    _destinationAddress = value;
+                                  });
+                                }),
+                            SizedBox(height: 10),
+                            Visibility(
+                              visible: _placeDistance == null ? false : true,
                               child: Text(
-                                'Show Route'.toUpperCase(),
+                                'DISTANCE: $_placeDistance km',
                                 style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
-                            style: ElevatedButton.styleFrom(
-                                primary: Colors.green,
-                                fixedSize: Size(
-                                    MediaQuery.of(context).size.width * 0.8,
-                                    50)),
-                          ),
-                        ],
+                            SizedBox(height: 5),
+                            ElevatedButton(
+                              onPressed: () async {
+                                startAddressFocusNode.unfocus();
+                                desrinationAddressFocusNode.unfocus();
+                                setState(() {
+                                  if (markers.isNotEmpty) markers.clear();
+                                  if (polylines.isNotEmpty) polylines.clear();
+                                  if (polylineCoordinates.isNotEmpty)
+                                    polylineCoordinates.clear();
+                                  _placeDistance = null;
+                                });
+
+                                _calculateDistance().then((isCalculated) {
+                                  if (isCalculated) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            'Distance Calculated Sucessfully'),
+                                      ),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content:
+                                            Text('Error Calculating Distance'),
+                                      ),
+                                    );
+                                  }
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  'Show Route'.toUpperCase(),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16.0,
+                                  ),
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                  primary: Colors.green,
+                                  fixedSize: Size(
+                                      MediaQuery.of(context).size.width * 0.8,
+                                      50)),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
