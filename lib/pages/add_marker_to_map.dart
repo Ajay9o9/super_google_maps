@@ -10,7 +10,8 @@ class AddMarkerToMapScreen extends StatefulWidget {
 }
 
 class _AddMarkerToMapScreenState extends State<AddMarkerToMapScreen> {
-  CameraPosition _initialLocation = CameraPosition(target: LatLng(0.0, 0.0));
+  final CameraPosition _initialLocation =
+      const CameraPosition(target: LatLng(0.0, 0.0));
   late GoogleMapController mapController;
 
   Map<MarkerId, Marker> _markers = <MarkerId, Marker>{};
@@ -51,7 +52,7 @@ class _AddMarkerToMapScreenState extends State<AddMarkerToMapScreen> {
 
   Future _addMarkerLongPressed(LatLng latlang) async {
     setState(() {
-      final MarkerId markerId = MarkerId("RANDOM_ID");
+      final MarkerId markerId = const MarkerId("RANDOM_ID");
       Marker marker = Marker(
         markerId: markerId,
         draggable: true,
