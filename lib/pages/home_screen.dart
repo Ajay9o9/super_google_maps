@@ -62,7 +62,9 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 16,
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                context.pushNamed(NavigationPaths.directions);
+              },
               child: Text("Map with route"),
             ),
           ],

@@ -48,6 +48,11 @@ class MyApp extends StatelessWidget {
       name: NavigationPaths.placesSearch,
       builder: (context, state) => MapView(),
     ),
+    GoRoute(
+      path: '/directions',
+      name: NavigationPaths.directions,
+      builder: (context, state) => MapView(),
+    ),
   ], initialLocation: '/');
 
   @override
